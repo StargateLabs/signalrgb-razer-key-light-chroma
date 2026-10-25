@@ -4,6 +4,8 @@
 
 <p align="center"><img src="assets/brand/razer-logo.svg" alt="razer" height="30"> &nbsp; <img src="assets/brand/signalrgb-logo.svg" alt="signalrgb" height="30"></p>
 
+<p align="center"><a href="https://stargatelabs.github.io/signalrgb-razer-key-light-chroma/"><b>Presentazione del progetto ↗</b></a> &nbsp; · &nbsp; <a href="https://github.com/StargateLabs/signalrgb-razer-key-light-chroma/releases"><b>Download</b></a></p>
+
 # Razer Key Light Chroma
 
 Controllo locale dell’illuminazione **Chroma RGB** della Razer Key Light, direttamente dal canvas di SignalRGB. Implementazione del protocollo originale con configurazione TCP confermata prima dello streaming UDP, controllo della frequenza e recupero delle connessioni.
