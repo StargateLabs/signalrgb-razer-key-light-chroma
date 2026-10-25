@@ -1,0 +1,7 @@
+{
+  "name": "stargatelabs-key-light",
+  "private": true,
+  "scripts": {
+    "test": "node plugin/test/keylight.test.mjs"
+  }
+}

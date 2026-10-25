@@ -1,0 +1,2 @@
+# Third-party notices
+Protocol reference: [simple-razer-keylight-chroma-controller](https://github.com/thepolishdane/simple-razer-keylight-chroma-controller). Packet parity was independently checked against the locally installed Razer SDK; the SDK and Razer software are not redistributed. Razer and SignalRGB names are identifying trademarks, not an endorsement. Original Stargate Labs source is MIT licensed.
