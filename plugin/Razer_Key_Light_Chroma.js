@@ -263,9 +263,11 @@ export function Render() {
   if (!["ready", "keepalive"].includes(phase)) return;
   if (phase === "ready" && now - lastKeepalive >= 10000 && !waitForReply("keepalive", HELLO)) return;
   if (now - lastFrame < frameInterval()) return;
+  const mapped = typeof device.getColors === "function" ? device.getColors("Inline", "RGB") : null;
   const rgb = typeof keyLightEnabled !== "undefined" && keyLightEnabled === false
     ? [0, 0, 0] : colorArray(lightingMode === "Colore fisso"
-      ? device.createColorArray(forcedColor, 1, "Inline") : device.color(0, 0));
+      ? device.createColorArray(forcedColor, 1, "Inline")
+      : mapped && mapped.length >= 3 ? [mapped[0], mapped[1], mapped[2]] : device.color(0, 0));
   const key = rgb.join(",");
   // Latest frame only; refresh static UDP state without a backlog of TCP commands.
   if (key === lastRGB && now - lastFrame < 500) return;

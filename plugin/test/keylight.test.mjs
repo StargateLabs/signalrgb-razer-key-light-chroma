@@ -84,6 +84,17 @@ check('UDP continues during heartbeat',udp.packets.length===heartbeat+1 && JSON.
 ack(test);check('heartbeat ACK returns ready',test.evaluate('phase')==='ready');
 const beforeOff=udp.packets.length;test.context.Shutdown();check('shutdown one UDP black',udp.packets.length===beforeOff+1 && JSON.stringify(rgb(udp))==='[0,0,0]');
 check('both sockets close',tcp.closed===1 && udp.closed===1);test.tick(10000);check('no reconnect after shutdown',tcp.connections===1 && udp.connections===1);
+const toggle=load();ready(toggle);
+toggle.context.device.getColors=()=>[0,0,0];toggle.context.device.color=()=>[255,0,0];toggle.tick(500);
+check('processed LED blackout overrides stale canvas color',JSON.stringify(rgb(toggle.udpSockets[0]))==='[0,0,0]');
+delete toggle.context.device.getColors;
+check('power switch exposed with enabled default',toggle.context.ControllableParameters().some(p=>p.property==='keyLightEnabled' && p.type==='boolean' && p.default===true));
+toggle.context.keyLightFrameRate='5';toggle.context.keyLightEnabled=false;toggle.context.onkeyLightEnabledChanged();toggle.tick(1);
+check('disable bypasses frame gate and sends black',JSON.stringify(rgb(toggle.udpSockets[0]))==='[0,0,0]');
+toggle.context.device.color=()=>[1,255,2];toggle.tick(500);
+check('disabled ignores changing canvas',JSON.stringify(rgb(toggle.udpSockets[0]))==='[0,0,0]');
+toggle.context.keyLightEnabled=true;toggle.context.onkeyLightEnabledChanged();toggle.tick(1);
+check('enable resumes current canvas without reconnect',JSON.stringify(rgb(toggle.udpSockets[0]))==='[1,255,2]' && toggle.tcpSockets[0].connections===1);
 const failed=load();ready(failed);const broken=failed.udpSockets[0];broken.send=()=>-1;failed.context.device.color=()=>[1,2,3];failed.tick();
 check('failed UDP closes both',failed.evaluate('phase')==='idle' && broken.closed===1 && failed.tcpSockets[0].closed===1);
 failed.tick(999);check('initial backoff one second',broken.connections===1);failed.tick(1);check('retry reuses sockets',broken.connections===2 && failed.udpSockets.length===1 && failed.tcpSockets.length===1);
