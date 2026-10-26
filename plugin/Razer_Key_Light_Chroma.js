@@ -4,7 +4,7 @@
 import tcp from "@SignalRGB/tcp";
 import udp from "@SignalRGB/udp";
 
-const DEFAULT_HOST = "";
+const DEFAULT_HOST = "192.168.1.95";
 const PORT = 10003;
 const FRAME_PORT = 10005;
 const HELLO = bytes("aa000013020912022026010900110000401500");
@@ -14,7 +14,8 @@ const SESSION_TIMEOUT_MS = 2000;
 
 export function Name() { return "Razer Key Light Chroma - Stargate Labs"; }
 export function Publisher() { return "Stargate Labs"; }
-export function Version() { return "1.1.0"; }
+export function ImageUrl() { return "https://raw.githubusercontent.com/StargateLabs/signalrgb-razer-key-light-chroma/main/assets/product.png"; }
+export function Version() { return "1.2.0"; }
 export function Type() { return "network"; }
 export function Size() { return [1, 1]; }
 export function DefaultPosition() { return [0, 0]; }
@@ -23,6 +24,7 @@ export function SubdeviceController() { return false; }
 export function Validate() { return true; }
 export function ControllableParameters() {
   return [
+    {property:"keyLightEnabled",group:"lighting",label:"Key Light accesa",type:"boolean",default:true},
     {property:"lightingMode",group:"lighting",label:"Sorgente colore",type:"combobox",values:["Canvas","Colore fisso"],default:"Canvas"},
     {property:"forcedColor",group:"lighting",label:"Colore fisso",type:"color",default:"#ffffff"},
     {property:"keyLightHost",group:"settings",label:"Indirizzo IP Key Light (vuoto = rilevato)",type:"textfield",default:""},
@@ -92,6 +94,11 @@ export function onkeyLightHostChanged() {
   fail();
   nextTry = 0;
   backoff = 1000;
+}
+
+export function onkeyLightEnabledChanged() {
+  lastRGB = null;
+  lastFrame = -Infinity;
 }
 
 function fail() {
@@ -256,8 +263,9 @@ export function Render() {
   if (!["ready", "keepalive"].includes(phase)) return;
   if (phase === "ready" && now - lastKeepalive >= 10000 && !waitForReply("keepalive", HELLO)) return;
   if (now - lastFrame < frameInterval()) return;
-  const rgb = colorArray(lightingMode === "Colore fisso"
-    ? device.createColorArray(forcedColor, 1, "Inline") : device.color(0, 0));
+  const rgb = typeof keyLightEnabled !== "undefined" && keyLightEnabled === false
+    ? [0, 0, 0] : colorArray(lightingMode === "Colore fisso"
+      ? device.createColorArray(forcedColor, 1, "Inline") : device.color(0, 0));
   const key = rgb.join(",");
   // Latest frame only; refresh static UDP state without a backlog of TCP commands.
   if (key === lastRGB && now - lastFrame < 500) return;
@@ -310,7 +318,7 @@ export function DiscoveryService() {
     }
     service.announceController(light);
     this.light = light;
-    this.status = "Key Light configurata · " + light.ip + ":" + PORT;
+    this.status = "Key Light configurata Â· " + light.ip + ":" + PORT;
     service.log("Key Light: controller annunciato su " + DEFAULT_HOST);
     this.announced = true;
   };
@@ -321,3 +329,4 @@ export function DiscoveryService() {
     this.status = "Riconnessione richiesta; stato TCP nella console del dispositivo";
   };
 }
+
